@@ -65,3 +65,6 @@ Temporary Items
 *.tlog
 *.obj
 *.ilk
+*.pdb
+*.log
+*.idb
