@@ -14,22 +14,22 @@ typedef struct list {
 	struct list* next;
 	struct list* before;
 } Queue;
-int pop(Queue * h, Queue * t);
-void push(Queue * h, int key, Queue * t);
-int empty(Queue h, Queue t);
+inline int pop(Queue * h, Queue * t);
+inline void push(Queue * h, int key, Queue * t);
+inline int empty(Queue h, Queue t);
 int main() {
-	/*char* read_in = (char*)malloc(sizeof(char)*(1 << 20));
+	char* read_in = (char*)malloc(sizeof(char)*(1 << 20));
 	setvbuf(stdin, read_in, _IOFBF, 1 << 20);
 	register int n, m;
 	scanf("%d %d", &n, &m);
 	const int N = n;
-	Node* map = (Node*)malloc(sizeof(Node)*N);*/
+	Node* map = (Node*)malloc(sizeof(Node)*N);
 	Queue qh, qt;
 	qh.n = qt.n = -1;
 	qh.before = qt.next = NULL;
 	qt.before = &qh;
 	qh.next = &qt;
-	push(&qh, 1, &qt);
+	/*push(&qh, 1, &qt);
 	push(&qh, 2, &qt);
 	push(&qh, 3, &qt);
 	printf("%d\n", pop(&qh, &qt));
@@ -38,8 +38,8 @@ int main() {
 	printf("%d\n", pop(&qh, &qt));
 	printf("++%d\n", empty(qh, qt));
 	printf("%d\n", pop(&qh, &qt));
-	printf("++%d\n", empty(qh, qt));
-	/*int num = 0;
+	printf("++%d\n", empty(qh, qt));*/
+	int num = 0;
 	int * count = (int*)malloc(sizeof(int)*N);
 	int ** route = (int**)malloc(sizeof(int*)*N);
 	for (--n;~n;--n){
@@ -69,8 +69,8 @@ int main() {
 	}
 	int i = num;
 	for (--i;~i;--i) {
-		
-	}*/
+		//?
+	}
 }
 int pop(Queue * h,Queue * t) {
 	if (empty(*h, *t)) return -1;
