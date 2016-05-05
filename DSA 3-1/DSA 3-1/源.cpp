@@ -14,8 +14,8 @@ typedef struct list {
 	struct list* next;
 	struct list* before;
 } Queue;
-int pop(Queue h, Queue t);
-void push(Queue h, int key, Queue t);
+int pop(Queue * h, Queue * t);
+void push(Queue * h, int key, Queue * t);
 int empty(Queue h, Queue t);
 int main() {
 	/*char* read_in = (char*)malloc(sizeof(char)*(1 << 20));
@@ -26,18 +26,18 @@ int main() {
 	Node* map = (Node*)malloc(sizeof(Node)*N);*/
 	Queue qh, qt;
 	qh.n = qt.n = -1;
-	qt.before = qt.next = NULL;
+	qh.before = qt.next = NULL;
 	qt.before = &qh;
 	qh.next = &qt;
-	push(qh, 1, qt);
-	push(qh, 2, qt);
-	push(qh, 3, qt);
-	printf("%d\n", pop(qh, qt));
-	printf("%d\n", pop(qh, qt));
-	push(qh, 4, qt);
-	printf("%d\n", pop(qh, qt));
+	push(&qh, 1, &qt);
+	push(&qh, 2, &qt);
+	push(&qh, 3, &qt);
+	printf("%d\n", pop(&qh, &qt));
+	printf("%d\n", pop(&qh, &qt));
+	push(&qh, 4, &qt);
+	printf("%d\n", pop(&qh, &qt));
 	printf("++%d\n", empty(qh, qt));
-	printf("%d\n", pop(qh, qt));
+	printf("%d\n", pop(&qh, &qt));
 	printf("++%d\n", empty(qh, qt));
 	/*int num = 0;
 	int * count = (int*)malloc(sizeof(int)*N);
@@ -72,23 +72,26 @@ int main() {
 		
 	}*/
 }
-int pop(Queue h,Queue t) {
-	if (empty(h, t)) return -1;
-	int result = t.before->n;
-	Queue * temp = t.before;
-	t.before = t.before->before;
+int pop(Queue * h,Queue * t) {
+	if (empty(*h, *t)) return -1;
+	int result = t->before->n;
+	Queue * temp = t->before;
+	//Queue * tmp = t->before->next;
+	t->before = t->before->before;
+	t->before->next = t;
 	free(temp);
 	return result;
 }
-void push(Queue h, int key, Queue t) {
-	Queue * temp = h.next;
-	Queue * tmp = h.next->before;
-	h.next = (Queue*)malloc(sizeof(Queue));
-	h.next->n = key;
-	h.next->before = tmp;
-	h.next->next = temp;
+void push(Queue * h, int key, Queue * t) {
+	Queue * temp = h->next;
+	//Queue * tmp = h->next->before;
+	h->next = (Queue*)malloc(sizeof(Queue));
+	h->next->n = key;
+	h->next->before = h;
+	h->next->next = temp;
+	h->next->next->before = h->next;
 }
 int empty(Queue h, Queue t) {
-	if (h.next->next = NULL) return 1;
+	if (!h.next->next) return 1;
 	else return 0;
 }
