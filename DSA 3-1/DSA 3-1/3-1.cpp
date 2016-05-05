@@ -1,23 +1,30 @@
 #include<stdio.h>
 #include<stdlib.h>
-//declare the structure
-typedef struct _node {
-	Edge* point;
-	int count;
-	int be_pointed;
-} Node;
-
+#include<algorithm>
+int value[100001];//from 1~n cities
+typedef int E[3];//[0] start [1] end [2] price
+E edge[100000];
+int cmp(const void*, const void *);
 int main() {
-	//enlarge buffer
+	register int n, m;
 	char* read_in = (char*)malloc(sizeof(char)*(1 << 20));
 	setvbuf(stdin, read_in, _IOFBF, 1 << 20);
-	//basic data read in
-	register int n, m;
 	scanf("%d %d", &n, &m);
-	//varaibles??
-	
-	//whole data read in
-	//find the Node without a point
-	//start from this node, find the longest route
-	//compare
+	const int N = n;
+	const int M = m;
+	for (--m;~m;--m) {
+		scanf("%d %d %d", &edge[m][0], &edge[m][1], &edge[m][2]);
+	}
+	std::sort(edge, edge + M, cmp);
+	for (m = M - 1;~m;m--) {
+		printf("%d %d %d", edge[m][0], edge[m][1], edge[m][2]);
+	}
+	return 0;
+}
+int cmp(const void * p, const void * q) {
+	if (((E*)p)[0] < ((E*)q)[0]) return -1;
+	else if(((E*)p)[0] > ((E*)q)[0]) return 1;
+	else if (((E*)p)[1] < ((E*)q)[1]) return -1;
+	else if (((E*)p)[1] > ((E*)q)[1]) return 1;
+	else return 0;
 }
