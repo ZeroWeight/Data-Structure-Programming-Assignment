@@ -17,6 +17,7 @@ int cmp(const void*, const void *);
 int find_max(int);
 void show_route(int);
 int bin_search_start(int,int,int);
+void show();
 int main() {
 	register int n, m;
 	char* read_in = (char*)malloc(sizeof(char)*(1 << 20));
@@ -40,6 +41,7 @@ int main() {
 		}
 	}
 	show_route(start_choose);
+	show();
 	return 0;
 }
 int cmp(const void * p, const void * q) {
@@ -58,7 +60,7 @@ int find_max(int n) {
 	int max = 0;
 	int temp;
 	for (;edge[start][0] == n;++start) {
-		if (value[edge[start][1]][1] != time_stamp &&
+		if (value[edge[start][1]][1] != time_stamp ||
 			value[edge[start][1]][0] < value[edge[start][0]][0] + edge[start][2]) {
 			value[edge[start][1]][1] = time_stamp;
 			value[edge[start][1]][0] = value[edge[start][0]][0] + edge[start][2];
@@ -72,7 +74,7 @@ int find_max(int n) {
 	return max;
 }
 void show_route(int n) {
-	int start = bin_search_start(0,n,M);
+	int start = bin_search_start(0, n, M);
 	if (!(~start)) return;
 	for (;edge[start][0] == n;++start) {
 		if (value[edge[start][1]][1] != time_stamp ||
@@ -80,11 +82,14 @@ void show_route(int n) {
 			value[edge[start][1]][1] = time_stamp;
 			value[edge[start][1]][0] = value[edge[start][0]][0] + edge[start][2];
 			from[edge[start][1]] = edge[start][0];
+			show_route(edge[start][1]);
 		}
 	}
+}
+void show(){
 	int max_rank = 0;
-	int i = N - 1;
-	for (i;~i;--i) {
+	int i = N;
+	for (;i;--i) {
 		if (value[i] >= value[max_rank]) max_rank = i;
 	}
 	int buffer[100000];
@@ -93,8 +98,9 @@ void show_route(int n) {
 		buffer[buffer_num] = max_rank;
 		max_rank = from[max_rank];
 	}
-	for (--buffer_num;~buffer_num;--buffer_num) {
-		printf("%d/t", buffer[buffer_num]);
+	buffer[buffer_num] = max_rank;
+	for (;~buffer_num;--buffer_num) {
+		printf("%d\t", buffer[buffer_num]);
 	}
 }
 int bin_search_start(int s,int n,int e) {
