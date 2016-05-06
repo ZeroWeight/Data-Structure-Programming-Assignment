@@ -5,21 +5,24 @@ typedef struct _list {
 	int num;
 	struct _list* list;
 } list;
+typedef struct _line {
+	int to;
+	int value;
+	struct _line* next;
+}line;
 typedef int D[2];//0 for value and 1 for time stamp
 typedef int E[3];//[0] start [1] end [2] price
 D value[100001];//from 1~n cities call by rank value[0] is never uesd
 list way[100001];//keep a record of the way for best
 static int in[100001];//from 1~n cities call by rank keep a record of IN_INDEX in[0] is never used
-static int from[10000];//keep a record of the route
-static int route_value;
-static int start_choose;
-int N, M;
-int time_stamp;
-E edge[1000000];// keep the record of edge
+line edge[100001];
+static int M;
 int cmp(const void*, const void *);
 int find_max(int);
-int bin_search_start(int,int,int);
 int main() {
+	int route_value=0;
+	int N;
+	int start_choose;
 	register int n, m;
 	char* read_in = (char*)malloc(sizeof(char)*(1 << 20));
 	setvbuf(stdin, read_in, _IOFBF, 1 << 20);
@@ -27,14 +30,16 @@ int main() {
 	N = n;
 	M = m;
 	for (--m;~m;--m) {
-		scanf("%d %d %d", &edge[m][0], &edge[m][1], &edge[m][2]);
-		++in[edge[m][1]];
+		scanf("%d", &n);
+		line temp = edge[n];
+		scanf("%d", &(edge[n].to));
+		scanf("%d", &(edge[n].value));
+		edge[n].next = &temp;
 	}
-	qsort(edge, M,sizeof(E), cmp);
+	n = N;
 	for (n;n;--n) {
 		if (!in[n]) {
-			++time_stamp;
-			value[n][1] = time_stamp;
+			value[n][1] = 1;
 			m=find_max(n);//find the max route start from n;
 		}
 		if (m > route_value) {
@@ -57,39 +62,31 @@ int cmp(const void * p, const void * q) {
 	else return 0;
 }
 int find_max(int n) {
-	int start=bin_search_start(0,n,M);
-	if (!(~start)) {
+	if (!edge[n].to) {
 		value[n][0] = 0;
 		way[n].list = NULL;
 		way[n].num = -1;
-		value[n][1] = time_stamp;
+		value[n][1] = 1;
 		return 0;
 	}
+	line* temp;
 	int max = 0;
-	int temp;
+	int tmp;
 	int rank;
-	for (;edge[start][0] == n;++start) {
-		if (value[edge[start][1]][1]) temp = value[edge[start][1]][0] + edge[start][2];
+	for (temp=edge+n;temp->to;temp=temp->next) {
+		if (value[temp->to][1]) tmp = value[temp->to][0] + temp->value;
 		else {
-			value[edge[start][1]][0] = find_max(edge[start][1]);
-			temp = value[edge[start][1]][0] + edge[start][2];
-			value[edge[start][1]][1] = time_stamp;
+			value[temp->to][0] = find_max(temp->to);
+			tmp = value[temp->to][0] + temp->value;
+			value[temp->to][1] = 1;
 		}
-		if (max<temp) {
-			max = temp;
-			rank = edge[start][1];
+		if (max<tmp) {
+			max = tmp;
+			rank = temp->to;
 		}
 	}
 	value[n][0] = max;
 	way[n].num = rank;
 	way[n].list = &way[rank];
 	return max;
-}
-int bin_search_start(int s,int n,int e) {
-	if (s == e) {
-		if (edge[s][0] == n) return s;
-		else return -1;
-	}
-	if (edge[(s + e) >> 1][0] < n) return bin_search_start((((s + e) >> 1) + 1), n, e);
-	return bin_search_start(s, n, (s + e) >> 1);
 }
