@@ -1,23 +1,24 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
 #include<stdlib.h>
-//#include<algorithm>
+typedef struct _list {
+	int num;
+	struct _list* list;
+} list;
 typedef int D[2];//0 for value and 1 for time stamp
-D value[100001];//from 1~n cities call by rank
-int in[100001];//from 1~n cities call by rank keep a record of IN_INDEX
-int from[10000];//keep a record of the route
-int route_value;
-int start_choose;
+typedef int E[3];//[0] start [1] end [2] price
+D value[100001];//from 1~n cities call by rank value[0] is never uesd
+list way[100001];//keep a record of the way for best
+static int in[100001];//from 1~n cities call by rank keep a record of IN_INDEX in[0] is never used
+static int from[10000];//keep a record of the route
+static int route_value;
+static int start_choose;
 int N, M;
 int time_stamp;
-int route_num;//a index of number of node
-typedef int E[3];//[0] start [1] end [2] price
 E edge[1000000];// keep the record of edge
 int cmp(const void*, const void *);
 int find_max(int);
-void show_route(int);
 int bin_search_start(int,int,int);
-void show();
 int main() {
 	register int n, m;
 	char* read_in = (char*)malloc(sizeof(char)*(1 << 20));
@@ -41,10 +42,11 @@ int main() {
 			start_choose = n;
 		}
 	}
-	++time_stamp;
-	value[start_choose][1] = time_stamp;
-	show_route(start_choose);
-	show();
+	list temp = way[start_choose];
+	printf("%d\t", start_choose);
+	for (;temp.num > 0;temp = *temp.list) {
+		printf("%d\t", temp.num);
+	}
 	return 0;
 }
 int cmp(const void * p, const void * q) {
@@ -57,54 +59,31 @@ int cmp(const void * p, const void * q) {
 int find_max(int n) {
 	int start=bin_search_start(0,n,M);
 	if (!(~start)) {
-		if (value[n][1] == time_stamp) return value[n][0];
-		else return 0;
+		value[n][0] = 0;
+		way[n].list = NULL;
+		way[n].num = -1;
+		value[n][1] = time_stamp;
+		return 0;
 	}
 	int max = 0;
 	int temp;
+	int rank;
 	for (;edge[start][0] == n;++start) {
-		if (value[edge[start][1]][1] != time_stamp ||
-			value[edge[start][1]][0] < value[edge[start][0]][0] + edge[start][2]) {
+		if (value[edge[start][1]][1]) temp = value[edge[start][1]][0] + edge[start][2];
+		else {
+			value[edge[start][1]][0] = find_max(edge[start][1]);
+			temp = value[edge[start][1]][0] + edge[start][2];
 			value[edge[start][1]][1] = time_stamp;
-			value[edge[start][1]][0] = value[edge[start][0]][0] + edge[start][2];
-			/*from[edge[start][1]] = edge[start][0];*/
-			temp = find_max(edge[start][1]);
-			if (max<temp) {
-				max = temp;
-			}
+		}
+		if (max<temp) {
+			max = temp;
+			rank = edge[start][1];
 		}
 	}
+	value[n][0] = max;
+	way[n].num = rank;
+	way[n].list = &way[rank];
 	return max;
-}
-void show_route(int n) {
-	int start = bin_search_start(0, n, M);
-	if (!(~start)) return;
-	for (;edge[start][0] == n;++start) {
-		if (value[edge[start][1]][1] != time_stamp ||
-			value[edge[start][1]][0] < value[edge[start][0]][0] + edge[start][2]) {
-			value[edge[start][1]][1] = time_stamp;
-			value[edge[start][1]][0] = value[edge[start][0]][0] + edge[start][2];
-			from[edge[start][1]] = edge[start][0];
-			show_route(edge[start][1]);
-		}
-	}
-}
-void show(){
-	int max_rank = 0;
-	int i = N;
-	for (;i;--i) {
-		if ((value[i][1] == time_stamp&&value[max_rank][1] != time_stamp)||(value[i][0] >= value[max_rank][0]&&value[i][1]==time_stamp)) max_rank = i;
-	}
-	int buffer[100000];
-	int buffer_num = 0;
-	for (;from[max_rank];++buffer_num) {
-		buffer[buffer_num] = max_rank;
-		max_rank = from[max_rank];
-	}
-	buffer[buffer_num] = max_rank;
-	for (;~buffer_num;--buffer_num) {
-		printf("%d\t", buffer[buffer_num]);
-	}
 }
 int bin_search_start(int s,int n,int e) {
 	if (s == e) {
