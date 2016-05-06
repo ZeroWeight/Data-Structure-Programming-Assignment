@@ -12,7 +12,7 @@ int N, M;
 int time_stamp;
 int route_num;//a index of number of node
 typedef int E[3];//[0] start [1] end [2] price
-E edge[100000];// keep the record of edge
+E edge[1000000];// keep the record of edge
 int cmp(const void*, const void *);
 int find_max(int);
 void show_route(int);
@@ -30,9 +30,10 @@ int main() {
 		++in[edge[m][1]];
 	}
 	qsort(edge, M,sizeof(E), cmp);
-	for (--n;~n;--n) {
+	for (n;n;--n) {
 		if (!in[n]) {
 			++time_stamp;
+			value[n][1] = time_stamp;
 			m=find_max(n);//find the max route start from n;
 		}
 		if (m > route_value) {
@@ -40,6 +41,8 @@ int main() {
 			start_choose = n;
 		}
 	}
+	++time_stamp;
+	value[start_choose][1] = time_stamp;
 	show_route(start_choose);
 	show();
 	return 0;
@@ -90,7 +93,7 @@ void show(){
 	int max_rank = 0;
 	int i = N;
 	for (;i;--i) {
-		if (value[i] >= value[max_rank]) max_rank = i;
+		if ((value[i][1] == time_stamp&&value[max_rank][1] != time_stamp)||(value[i][0] >= value[max_rank][0]&&value[i][1]==time_stamp)) max_rank = i;
 	}
 	int buffer[100000];
 	int buffer_num = 0;
