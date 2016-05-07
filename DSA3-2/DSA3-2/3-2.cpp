@@ -3,6 +3,8 @@
 #include<iostream>
 #define Check(n) (bitmap[n >> 3] & (0x80 >> (n & 0x07)))// check the bit
 #define Reverse(n) (bitmap[n >> 3] ^= (0x80 >> (n & 7)))//reverse the bit
+#define Set(n) (ever_reach[n >> 3] |= (0x80 >> (n & 0x07)))// set the bit to 1
+#define Ever(n) (ever_reach[n >> 3] & (0x80 >> (n & 0x07)))
 #define Father(n) (n>>1)
 #define Lchild(n) (n<<1)
 #define Rchild(n) ((n<<1)+1)
@@ -60,10 +62,18 @@ void reverse(int l, int r, int root) {
 	int temp = find_end(Lchild(root));
 	reverse(l, temp, Lchild(root));
 	reverse(temp + 1, r, Rchild(root));
+	Set(root);
 }
 int query(int l, int r, int root) {
 	if (l > find_end(root) || r < find_start(root)) return 0;//ill
 	if (find_end(root) == find_start(root)) return (Check(root)==0);//leaf
+	if (l == find_start(root) && r == find_end(root) && !Ever(root)) {
+		if (Check(root))
+		{
+			return 0;
+		}
+		else return count(root);
+	}
 	int temp = find_end(Lchild(root));
 	int tmp = query(l, temp, Lchild(root)) + query(temp + 1, r, Rchild(root));
 	if (Check(root)) tmp = count(root) - tmp;
