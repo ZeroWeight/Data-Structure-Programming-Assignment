@@ -50,16 +50,16 @@ void reverse(const int l, const int r, const int L, const int R , const int root
 	}
 	pushdown(L, R, root);
 	int mid = ((L + R) >> 1);
-	if (l <= mid) reverse(l, r, L, mid, root * 2);
-	if (r > mid) reverse(l, r, mid + 1, R, root * 2 + 1);
-	sum[root] = sum[root * 2] + sum[root * 2 + 1];
+	if (l <= mid) reverse(l, r, L, mid, Lchild(root));
+	if (r > mid) reverse(l, r, mid + 1, R, Rchild(root));
+	sum[root] = sum[Lchild(root)] + sum[Rchild(root)];
 }
 int query(const int l, const int r, const int L, const int R, const int root) {
 	if (l <= L && R <= r) return sum[root];
 	pushdown(L, R, root);
-	int res = 0, mid = (L + R) / 2;
-	if (l <= mid) res += query(l, r, L, mid, root * 2);
-	if (r > mid) res += query(l, r, mid + 1, R, root * 2 + 1);
+	int res = 0, mid = ((L + R) >>1);
+	if (l <= mid) res += query(l, r, L, mid, Lchild(root));
+	if (r > mid) res += query(l, r, mid + 1, R, Rchild(root));
 	return res;
 }
 
