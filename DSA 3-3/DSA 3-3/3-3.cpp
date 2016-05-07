@@ -1,7 +1,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include"temperature.h"
 #include<stdlib.h>
-#include<algorithm>
+#define min(x,y) (((x)<(y))?(x):(y))
+#define max(x,y) (((x)>(y))?(x):(y))
 typedef struct _node {
 	int sign;
 	int L;
@@ -19,22 +20,27 @@ _cmp cmp[2];
 int sign;
 inline int cmp_x(const void *, const void *);
 inline int cmp_y(const void *, const void *);
-void build(node*, point*, int);
+void build(node*, point*,const int);
 int average(const node*, const int, const int, const int, const int,int*);
 int main() {
 	cmp[0] = cmp_x;
 	cmp[1] = cmp_y;
 	point* station;
-	node root;
+	node* root = (node*)malloc(sizeof(node));
 	int x1, x2, y1, y2;
 	int n = GetNumOfStation();
 	int status;
-	station = (point*)malloc(sizeof(n*sizeof(point)));
+	station = (point*)malloc(n*sizeof(point));
+	const int N = n;
 	for (;n--;)
 		GetStationInfo(n, &station[n][0], &station[n][1], &station[n][2]);
-	build(&root, station, n);
+	build(root, station, N);
 	for (status = GetQuery(&x1, &y1, &x2, &y2);status;status = GetQuery(&x1, &y1, &x2, &y2)) {
-		Response(average(&root, x1, x2, y1, y2,&n));
+		if (x1 < root->L) x1 = root->L;
+		if (x2 > root->R)x2 = root->R;
+		if (y1 < root->D) y1 = root->D;
+		if (y2 > root->U) y2 = root->U;
+		Response(average(root, x1, x2, y2, y1,&n));
 	}
 	return 0;
 }
@@ -48,7 +54,7 @@ inline int cmp_y(const void* p, const void * q) {
 		return ((point*)p)[1] - ((point*)q)[1];
 	return ((point*)p)[0] - ((point*)q)[0];
 }
-void build(node* root, point*list, int n) {
+void build(node* root, point*list,const int n) {
 	if (!n) return;
 	if (n == 1) {
 		root->ave = list[0][2];
@@ -65,19 +71,23 @@ void build(node* root, point*list, int n) {
 		root->sign = sign;//0 x, 1,y;
 		sign ^= 1;
 		build(root->ch1, list, n >> 1);
-		build(root->ch2, list + (n >> 1) + 1, n - (n >> 1));
-		root->D = std::min(root->ch1->D, root->ch2->D);
-		root->U = std::max(root->ch1->U, root->ch2->U);
-		root->L = std::min(root->ch1->L, root->ch2->L);
-		root->R = std::max(root->ch1->R, root->ch2->R);
+		build(root->ch2, list + (n >> 1), n - (n >> 1));
+		root->D = min(root->ch1->D, root->ch2->D);
+		root->U = max(root->ch1->U, root->ch2->U);
+		root->L = min(root->ch1->L, root->ch2->L);
+		root->R = max(root->ch1->R, root->ch2->R);
 		root->node = root->ch1->node + root->ch2->node;
 		root->ave = root->ch1->ave*root->ch1->node + root->ch2->ave*root->ch2->node;
 		root->ave /= root->node;
 	}
 }
 int average(const node* root, const int l, const int r, const int u, const int d,int* count) {
-	if (root->L<l&&root->R>r&&root->U > u&&root->D < d) {
-		if (root->sign > 0) {
+	if (root->L == l&&root->R == r&&root->U == u&&root->D == d) {
+		*count = root->node;
+		return root->ave;
+	}
+	else if (root->L<=l&&root->R>=r&&root->U >= u&&root->D <= d) {
+		if (root->sign >= 0) {
 			if (root->sign) {
 				//by y
 				if (root->ch1->U >= u) {
@@ -115,13 +125,11 @@ int average(const node* root, const int l, const int r, const int u, const int d
 				}
 			}
 		}
-		else return root->ave;
-	}
-	else if (root->L == l&&root->R == r&&root->U == u&&root->D == d) {
-		*count = root->node;
-		return root->ave;
-	}
-		
+		else {
+			*count = 1;
+			return root->ave;
+		}
+	}	
 	else {
 		*count = 0;
 		return 0;
