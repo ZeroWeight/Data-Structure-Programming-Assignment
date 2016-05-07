@@ -95,20 +95,14 @@ long long total(const node* root, const int  l, const int  r, const int  u, cons
 			int count1 = 0, count2 = 0;
 			if (root->sign) {
 				//by y
-				if (root->ch1->U >= u) {
+				if (root->ch1->U > u) {
 					// in ch1(lower)
-					tmp= total(root->ch1, l, r, u, d, &count1);
-					if (root->ch1->U == root->ch2->D)
-						tmp += total(root->ch2, l, r, root->ch1->U, root->ch1->U, &count2);
-					*count = count1 + count2;
+					tmp= total(root->ch1, l, r, u, d, count);
 					return tmp;
 				}
-				else if (root->D <= d) {
+				else if (root->D < d) {
 					//in ch2(upper)
-					tmp = total(root->ch2, l, r, u, d, &count1);
-					if (root->ch1->U == root->ch2->D)
-						tmp += total(root->ch1, l, r, root->ch1->U, root->ch1->U, &count2);
-					*count = count1 + count2;
+					tmp = total(root->ch2, l, r, u, d, count);
 					return tmp;
 				}
 				else {
@@ -120,20 +114,14 @@ long long total(const node* root, const int  l, const int  r, const int  u, cons
 			}
 			else {
 				//by x
-				if (root->ch1->R >= r) {
+				if (root->ch1->R > r) {
 					// in ch1(left)
-					tmp = total(root->ch1, l, r, u, d, &count1);
-					if (root->ch1->R == root->ch2->L)
-						tmp += total(root->ch2, root->ch1->R, root->ch1->R, u, l, &count2);
-					*count = count1 + count2;
+					tmp = total(root->ch1, l, r, u, d, count);
 					return tmp;
 				}
-				else if (root->ch2->L <= l) {
+				else if (root->ch2->L < l) {
 					//in ch2(right)
-					tmp = total(root->ch2, l, r, u, d, &count1);
-					if (root->ch1->R == root->ch2->L)
-						tmp += total(root->ch1, root->ch1->R, root->ch1->R, u, l, &count2);
-					*count = count1 + count2;
+					tmp = total(root->ch2, l, r, u, d, count);
 					return tmp;
 				}
 				else {
