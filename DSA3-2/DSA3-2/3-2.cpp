@@ -1,14 +1,28 @@
 #include<stdio.h>
 #include<iostream>
-#define check(n) (bitmap[n >> 3] & (0x80 >> (n & 0x07)))
-#define reverse(n) (bitmap[n >> 3] ^= (0x80 >> (n & 7)))
+#define check(n) (bitmap[n >> 3] & (0x80 >> (n & 0x07)))// check the bit
+#define reverse(n) (bitmap[n >> 3] ^= (0x80 >> (n & 7)))//reverse the bit
 char bitmap[1 << 18];
+inline int find_start(int n);//find the start of bit(include)
+inline int find_end(int n);//find the end of the bit(include)
 int main() {
-	reverse(100);
-	reverse(101);
-	std::cout << check(100) << std::endl;
-	std::cout << check(101) << std::endl;
-	std::cout << check(102) << std::endl;
-	reverse(100);
-	std::cout << check(100) << std::endl;
+	
+}
+inline int find_start(int n) {
+	int temp = n;
+	int volume = 20;
+	for (;n>>1;) {
+		--volume;
+		n >>= 1;
+	}
+	return 1 + (1 << volume)*(temp - (1 << (20 - volume)));
+}
+inline int find_end(int n) {
+	int temp = n;
+	int volume = 20;
+	for (;n >> 1;) {
+		--volume;
+		n >>= 1;
+	}
+	return (1 << volume)*(1+temp - (1 << (20 - volume)));
 }
