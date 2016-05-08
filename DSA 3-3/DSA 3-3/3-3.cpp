@@ -51,12 +51,16 @@ int  main() {
 inline int  cmp_x(const void* p, const void * q) {
 	if (((point*)p)[0][0] - ((point*)q)[0][0])
 		return ((point*)p)[0][0] - ((point*)q)[0][0];
-	return ((point*)p)[0][1] - ((point*)q)[0][1];
+	if (((point*)p)[0][1] - ((point*)q)[0][1])
+		return ((point*)p)[0][1] - ((point*)q)[0][1];
+	return ((point*)p)[0][2] - ((point*)q)[0][2];
 }
 inline int  cmp_y(const void* p, const void * q) {
 	if (((point*)p)[0][1] - ((point*)q)[0][1])
 		return ((point*)p)[0][1] - ((point*)q)[0][1];
-	return ((point*)p)[0][0] - ((point*)q)[0][0];
+	if (((point*)p)[0][0] - ((point*)q)[0][0])
+		return ((point*)p)[0][0] - ((point*)q)[0][0];
+	return ((point*)p)[0][2] - ((point*)q)[0][2];
 }
 void build(node* root, point*list,const int  n) {
 	if (!n) return;
