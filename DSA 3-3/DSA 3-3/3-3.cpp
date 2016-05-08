@@ -2,6 +2,7 @@
 #include"temperature.h"
 #include<stdlib.h>
 #include<iostream>
+#include<math.h>
 #define min(x,y) (((x)<(y))?(x):(y))
 #define max(x,y) (((x)>(y))?(x):(y))
 typedef struct _node {
@@ -11,7 +12,7 @@ typedef struct _node {
 	int  U;
 	int  D;
 	int  node;
-	long long sum;
+	int sum;
 	struct _node* ch1;
 	struct _node* ch2;
 }node;
@@ -21,7 +22,7 @@ _cmp cmp[2];
 inline int  cmp_x(const void *, const void *);
 inline int  cmp_y(const void *, const void *);
 void build(node*, point*,const int );
-long long total(const node*, const int , const int , const int , const int ,int *);
+int total(const node*, const int , const int , const int , const int ,int *);
 int  main() {
 	cmp[0] = cmp_x;
 	cmp[1] = cmp_y;
@@ -33,38 +34,41 @@ int  main() {
 	int  status;
 	station = (point*)malloc(n*sizeof(point));
 	const int  N = n;
-	long long temp;
+	int temp;
 	for (;n--;)
 		GetStationInfo(n, &station[n][0], &station[n][1], &station[n][2]);
 	build(root, station, N);
 	for (status = GetQuery(&x1, &y1, &x2, &y2);status;status = GetQuery(&x1, &y1, &x2, &y2)) {
-		if (x1 < root->L) x1 = root->L;
-		if (x2 > root->R)x2 = root->R;
-		if (y1 < root->D) y1 = root->D;
-		if (y2 > root->U) y2 = root->U;
+		x1 = max(x1, root->L);
+		x2 = min(x2, root->R);
+		y1 = max(y1, root->D);
+		y2 = min(y2, root->U);
 		temp = total(root, x1, x2, y2, y1, &n);
 		Response(n ? (int)temp / n : 0);
 	}
 	return 0;
 }
 inline int  cmp_x(const void* p, const void * q) {
-	if (((point*)p)[0] - ((point*)q)[0])
-		return ((point*)p)[0] - ((point*)q)[0];
-	return ((point*)p)[1] - ((point*)q)[1];
+	if (((point*)p)[0][0] - ((point*)q)[0][0])
+		return ((point*)p)[0][0] - ((point*)q)[0][0];
+	return ((point*)p)[0][1] - ((point*)q)[0][1];
 }
 inline int  cmp_y(const void* p, const void * q) {
-	if (((point*)p)[1] - ((point*)q)[1])
-		return ((point*)p)[1] - ((point*)q)[1];
-	return ((point*)p)[0] - ((point*)q)[0];
+	if (((point*)p)[0][1] - ((point*)q)[0][1])
+		return ((point*)p)[0][1] - ((point*)q)[0][1];
+	return ((point*)p)[0][0] - ((point*)q)[0][0];
 }
 void build(node* root, point*list,const int  n) {
 	if (!n) return;
-	if (n == 1) {
-		root->sum = list[0][2];
+	if (list[0][0]==list[n-1][0]&&list[0][1]==list[n-1][1]) {
+		root->sum = 0;
+		for (int i = 0;i < n;i++) {
+			root->sum += list[i][2];
+		}
 		root->ch1 = root->ch2 = NULL;
 		root->D = root->U = list[0][1];
 		root->L = root->R = list[0][0];
-		root->node = 1;
+		root->node = n;
 		root->sign = -1;
 	}
 	else {
@@ -84,50 +88,54 @@ void build(node* root, point*list,const int  n) {
 		root->sum = root->ch1->sum + root->ch2->sum;
 	}
 }
-long long total(const node* root, const int  l, const int  r, const int  u, const int  d,int * count) {
+int total(const node* root, const int  l, const int  r, const int  u, const int  d,int * count) {
+	if (l > r || u < d) {
+		*count = 0;
+		return 0;
+	}
 	if (root->L == l&&root->R == r&&root->U == u&&root->D == d) {
 		*count = root->node;
 		return root->sum;
 	}
 	else if (root->L<=l&&root->R>=r&&root->U >= u&&root->D <= d) {
 		if (root->sign >= 0) {
-			long long tmp;
+			int tmp;
 			int count1 = 0, count2 = 0;
 			if (root->sign) {
 				//by y
-				if (root->ch1->U > u) {
+				if ((root->ch1->U >= u&&root->ch1->U!=root->ch2->D)|| root->ch1->U > u) {
 					// in ch1(lower)
-					tmp= total(root->ch1, l, r, u, d, count);
+					tmp = total(root->ch1, max(l, root->ch1->L), min(root->ch1->R, r), min(root->ch1->U, u), max(d, root->ch1->D), count);
 					return tmp;
 				}
-				else if (root->D < d) {
+				else if ((root->ch2->D <= d&&root->ch1->U != root->ch2->D)|| root->ch2->D < d) {
 					//in ch2(upper)
-					tmp = total(root->ch2, l, r, u, d, count);
+					tmp = total(root->ch2, max(l, root->ch2->L), min(root->ch2->R, r), min(root->ch2->U, u), max(d, root->ch2->D), count);
 					return tmp;
 				}
 				else {
-					long long ave1 = total(root->ch1, l, r, root->ch1->U, d, &count1);
-					long long ave2 = total(root->ch2, l, r, u, root->ch2->D, &count2);
+					int ave1 = total(root->ch1, max(l,root->ch1->L), min(root->ch1->R,r), root->ch1->U, max(d,root->ch1->D), &count1);
+					int ave2 = total(root->ch2, max(l, root->ch2->L), min(root->ch2->R, r), min(u,root->ch2->U), root->ch2->D, &count2);
 					*count = count1 + count2;
 					return ave1 + ave2;
 				}
 			}
 			else {
 				//by x
-				if (root->ch1->R > r) {
+				if ((root->ch1->R >= r&&root->ch1->R != root->ch2->L)|| root->ch1->R > r) {
 					// in ch1(left)
-					tmp = total(root->ch1, l, r, u, d, count);
+					tmp = total(root->ch1, max(l, root->ch1->L), min(root->ch1->R, r), min(root->ch1->U, u), max(d, root->ch1->D), count);
 					return tmp;
 				}
-				else if (root->ch2->L < l) {
+				else if ((root->ch2->L <= l&&root->ch1->R != root->ch2->L)|| root->ch2->L < l) {
 					//in ch2(right)
-					tmp = total(root->ch2, l, r, u, d, count);
+					tmp = total(root->ch2, max(l, root->ch2->L), min(root->ch2->R, r), min(root->ch2->U, u), max(d, root->ch2->D), count);
 					return tmp;
 				}
 				else {
 					int  count1, count2;
-					long long ave1 = total(root->ch1, l,root->ch1->R,u,d, &count1);
-					long long ave2 = total(root->ch2, root->ch2->L, r, u, d, &count2);
+					int ave1 = total(root->ch1, max(root->ch1->L,l),root->ch1->R, min(root->ch1->U, u), max(d, root->ch1->D), &count1);
+					int ave2 = total(root->ch2, root->ch2->L, min(root->ch2->R,r), min(root->ch2->U, u), max(root->ch2->D, d), &count2);
 					*count = count1 + count2;
 					return ave1 + ave2;
 				}
