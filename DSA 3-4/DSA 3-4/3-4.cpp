@@ -1,65 +1,40 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
-#include<time.h>
-#define alpha(n) ((n)-'a'+1)
-#define beta(n) ((n)+'a'-1)
-#define NUM 32
-long long code[10000];
-int number[10000];
-char read_in[1 << 20];
-int rank;
-long long zip(char*);
-void unzip(char*, long long);
-int main() {
-	setvbuf(stdin, read_in, _IOFBF, 1 << 20);
-	int n;
-	register int i;
-	long long temp;
-	scanf("%d", &n);
-	char name[9];
-	for (;n--;) {
-		scanf("%s", name);
-		temp = zip(name);
-		for (i = rank;i--;) {//sort necessary?
-			if (code[i] == temp) break;
-		}
-		if (i == -1) {
-			code[rank] = temp;
-			number[rank] = 1;
-			rank++;
-		}
-		else {
-			number[i]++;
-		}
-	}
-	n = rank - 1;
-	for (i = rank;i--;) {
-		if (number[n] < number[i]) n = i;
-	}
-	unzip(name, code[n]);
-	printf("%s\t%d\t%d\n", name, number[n],n);
+#include <cstdio>
+#include <cstring>
+const int N = 10000 + 5;
+char hash[N][9];
+int tot, cnt[N], head[N], next[N];
+int calc_hash(char *s) {
+	int key = 0, len = strlen(s);
+	for (int i = 0; i < len; ++i) key += s[i] * (i + 1) % (N - 1) + 1;
+	return key;
+}
+int create_hash(char *s) {
+	int key = calc_hash(s);
+	memcpy(hash[++tot], s, sizeof s);
+	next[tot] = head[key];
+	head[key] = tot;
+	return tot;
+}
+int find_hash(char *s) {
+	int key = calc_hash(s);
+	for (int i = head[key]; i; i = next[i])
+		if (!strcmp(s, hash[i])) return i;
 	return 0;
 }
-long long zip(char*s) {
-	long long result = 0;
-	for (int i = 0;s[i];i++) {
-		result += alpha(s[i]);
-		result <<= 5;
+int main() {
+	int n, max = 0;
+	scanf("%d", &n);
+	char s[9], name[9];
+	while (n--) {
+		scanf("\n%s", s);
+		int hash_value = find_hash(s);
+		if (!hash_value) hash_value = create_hash(s);
+		if (++cnt[hash_value] > max) {
+			max = cnt[hash_value];
+			memcpy(name, s, sizeof s);
+		}
 	}
-	return result >>= 5;
-}
-void unzip(char*s, long long n) {
-	char buffer[9];
-	int count = 0;
-	int i;
-	for (;n;n >>= 5) {
-		buffer[count] = n&0x1F;
-		++count;
-	}
-	for (i=0;count--;i++) {
-		s[i] = beta(buffer[count]);
-	}
-	s[i] = 0;
+	printf("%s %d\n", name, max);
+	return 0;
 }
