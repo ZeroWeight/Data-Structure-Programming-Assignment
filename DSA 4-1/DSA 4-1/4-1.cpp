@@ -30,24 +30,23 @@ int main() {
 	scanf("%d", &n);
 	for (;n--;) {
 		code = 0;
-		//read as 8-bit;
 		for (i = 8;i--;) {
 			scanf("%d", &temp);
 			code <<= 3;
 			code += (temp - 1);
 		}
-		printf("%o\n",code);
+		printf("%d\n",solve(code));
 	}
 	return 0;
 }
 int solve(int code) {
+	if (code == RESULT) return 0;
 	//find the code,if not
 	//A while loop
 	//BFS the result root tree a loop
 	//BFS the begin root tree a loop
 	//check whether they have a cir.
 	//if cannot goon return -1;
-	
 	return -1;
 }
 inline int change_1(int code) {
