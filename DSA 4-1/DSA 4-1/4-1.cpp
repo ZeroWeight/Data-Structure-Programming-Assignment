@@ -10,7 +10,7 @@ class queue {
 private:
 	list* head;
 	list* end;
-	int num;
+	short num;
 public:
 	queue(int);
 	void push(int);
@@ -18,6 +18,9 @@ public:
 	int empty();
 };
 int solve(int);
+//zip and upzip
+inline int zip(int);
+inline int unzip(int);
 //rule to
 inline int change_1(int);
 inline int change_2(int);
@@ -52,56 +55,63 @@ int main() {
 int solve(int code) {
 	int r_temp, s_temp;
 	if (code == RESULT) return 0;
-	if (map[code] > 0) return map[code];
+	if (map[zip(code)] > 0) return map[zip(code)];
 	if (result.empty()) return -1;
 	queue start(code);
-	map[code] = 0;
+	map[zip(code)] = 0;
 	while ((!start.empty()) && (!result.empty())) {
 		//a try from root
 		r_temp = result.pop();
-		if (map[R_change_1(r_temp)] < 0 && time_stamp[R_change_1(r_temp)] == time)
-			return 1 + map[r_temp] - map[R_change_1(r_temp)];
-		if (map[R_change_2(r_temp)] < 0 && time_stamp[R_change_2(r_temp)] == time)
-			return 1 + map[r_temp] - map[R_change_2(r_temp)];
-		if (map[R_change_3(r_temp)] < 0 && time_stamp[R_change_3(r_temp)] == time)
-			return 1 + map[r_temp] - map[R_change_3(r_temp)];
-		if (map[R_change_1(r_temp)] <= 0) {
-			map[R_change_1(r_temp)] = map[r_temp] + 1;
+		if (map[zip(R_change_1(r_temp))] < 0 && time_stamp[zip(R_change_1(r_temp))] == time)
+			return 1 + map[zip(r_temp)] - map[zip(R_change_1(r_temp))];
+		if (map[zip(R_change_2(r_temp))] < 0 && time_stamp[zip(R_change_2(r_temp))] == time)
+			return 1 + map[zip(r_temp)] - map[zip(R_change_2(r_temp))];
+		if (map[zip(R_change_3(r_temp))] < 0 && time_stamp[zip(R_change_3(r_temp))] == time)
+			return 1 + map[zip(r_temp)] - map[zip(R_change_3(r_temp))];
+		if (map[zip(R_change_1(r_temp))] <= 0) {
+			map[zip(R_change_1(r_temp))] = map[zip(r_temp)] + 1;
 			result.push(R_change_1(r_temp));
 		}
-		if (map[R_change_2(r_temp)] <= 0) {
-			map[R_change_2(r_temp)] = map[r_temp] + 1;
+		if (map[zip(R_change_2(r_temp))] <= 0) {
+			map[zip(R_change_2(r_temp))] = map[zip(r_temp)] + 1;
 			result.push(R_change_2(r_temp));
 		}
-		if (map[R_change_3(r_temp)] <= 0) {
-			map[R_change_3(r_temp)] = map[r_temp] + 1;
+		if (map[zip(R_change_3(r_temp))] <= 0) {
+			map[zip(R_change_3(r_temp))] = map[zip(r_temp)] + 1;
 			result.push(R_change_3(r_temp));
 		}
 		//a try from start
 		s_temp = start.pop();
-		if (map[change_1(s_temp)] > 0) return 1 + map[change_1(s_temp)] - map[s_temp];
-		if (map[change_2(s_temp)] > 0) return 1 + map[change_2(s_temp)] - map[s_temp];
-		if (map[change_3(s_temp)] > 0) return 1 + map[change_3(s_temp)] - map[s_temp];
-		if (time_stamp[change_1(s_temp)] == time&&map[change_1(s_temp)] < 0);
+		if (map[zip(change_1(s_temp))] > 0) return 1 + map[zip(change_1(s_temp))] - map[zip(s_temp)];
+		if (map[zip(change_2(s_temp))] > 0) return 1 + map[zip(change_2(s_temp))] - map[zip(s_temp)];
+		if (map[zip(change_3(s_temp))] > 0) return 1 + map[zip(change_3(s_temp))] - map[zip(s_temp)];
+		if (time_stamp[zip(change_1(s_temp))] == time&&map[zip(change_1(s_temp))] < 0);
 		else {
-			time_stamp[change_1(s_temp)] = time;//update time
+			time_stamp[zip(change_1(s_temp))] = time;//update time
 			start.push(change_1(s_temp));//push
-			map[change_1(s_temp)] = map[s_temp] - 1;//minus 1
+			map[zip(change_1(s_temp))] = map[zip(s_temp)] - 1;//minus 1
 		}
-		if (time_stamp[change_2(s_temp)] == time&&map[change_2(s_temp)] < 0);
+		if (time_stamp[zip(change_2(s_temp))] == time&&map[zip(change_2(s_temp))] < 0);
 		else {
-			time_stamp[change_2(s_temp)] = time;//update time
+			time_stamp[zip(change_2(s_temp))] = time;//update time
 			start.push(change_2(s_temp));//push
-			map[change_2(s_temp)] = map[s_temp] - 1;//minus 1
+			map[zip(change_2(s_temp))] = map[zip(s_temp)] - 1;//minus 1
 		}
-		if (time_stamp[change_3(s_temp)] == time&&map[change_3(s_temp)] < 0);
+		if (time_stamp[zip(change_3(s_temp))] == time&&map[zip(change_3(s_temp))] < 0);
 		else {
-			time_stamp[change_3(s_temp)] = time;//update time
+			time_stamp[zip(change_3(s_temp))] = time;//update time
 			start.push(change_3(s_temp));//push
-			map[change_3(s_temp)] = map[s_temp] - 1;//minus 1
+			map[zip(change_3(s_temp))] = map[zip(s_temp)] - 1;//minus 1
 		}
 	}
 	return -1;
+}
+//zip and unzip
+inline int zip(int code) {
+	return code;
+}
+inline int unzip(int code) {
+	return code;
 }
 //rules: to
 inline int change_1(int code) {
@@ -116,10 +126,10 @@ inline int change_1(int code) {
 inline int change_2(int code) {
 	int lower = code & 07777;//the lower state;
 	int higher = code >> (3 * 4);
-	int lower_1 = (lower & 07000)>>(3*3);//the [8]
+	int lower_1 = (lower & 07000)>>(3*3);
 	int lower_234 = lower - (lower_1<<(3*3));
 	lower = (lower_234 << 3) + lower_1;
-	int higher_1 = higher & 07;//the [8]
+	int higher_1 = higher & 07;
 	int higher_234 = higher >> 3;
 	higher = (higher_1 << (3 * 3)) + higher_234;
 	return ((higher << (3 * 4)) + lower);
@@ -155,10 +165,10 @@ inline int R_change_1(int code) {
 inline int R_change_2(int code) {
 	int lower = code & 07777;//the lower state;
 	int higher = code >> (3 * 4);
-	int higher_1 = (higher & 07000) >> (3 * 3);//the [8]
+	int higher_1 = (higher & 07000) >> (3 * 3);
 	int higher_234 = higher - (higher_1 << (3 * 3));
 	higher = (higher_234 << 3) + higher_1;
-	int lower_1 = lower & 07;//the [8]
+	int lower_1 = lower & 07;
 	int lower_234 = lower >> 3;
 	lower = (lower_1 << (3 * 3)) + lower_234;
 	return ((higher << (3 * 4)) + lower);
