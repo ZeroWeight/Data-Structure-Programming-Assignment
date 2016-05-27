@@ -2,6 +2,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #define RESULT 001234567
+#define _8 40320
 typedef struct _list{
 	int value;
 	struct _list* next;
@@ -30,17 +31,7 @@ inline int R_change_1(int);
 inline int R_change_2(int);
 inline int R_change_3(int);
 //static variables
-enum fact {
-	_0 = 1,
-	_1 = 1,
-	_2 = 2,
-	_3 = 6,
-	_4 = 24,
-	_5 = 120,
-	_6 = 720,
-	_7 = 5040,
-	_8 = 40320,
-};
+const int fact[] = { 1,1,2,6,24,120,720,5040,40320 };
 int map[_8];
 int time_stamp[_8];
 int time;
@@ -59,12 +50,12 @@ int main() {
 			code <<= 3;
 			code += (temp - 1);
 		}
-		printf("%d\n",solve(code));
+		printf("%d\n", solve(code));
 	}
 	return 0;
 }
 int solve(int code) {
-	int r_temp, s_temp;
+	int r_temp, s_temp, temp, R=-1;
 	if (code == RESULT) return 0;
 	if (map[zip(code)] > 0) return map[zip(code)];
 	if (result.empty()) return -1;
@@ -74,41 +65,57 @@ int solve(int code) {
 		//a try from root
 		r_temp = result.pop();
 		if (map[zip(R_change_1(r_temp))] < 0 && time_stamp[zip(R_change_1(r_temp))] == time)
-			return 1 + map[zip(r_temp)] - map[zip(R_change_1(r_temp))];
+		{
+			temp = map[zip(R_change_1(r_temp))];
+			R= 1 + map[zip(r_temp)] - temp;
+			goto tag;
+		}
 		if (map[zip(R_change_2(r_temp))] < 0 && time_stamp[zip(R_change_2(r_temp))] == time)
-			return 1 + map[zip(r_temp)] - map[zip(R_change_2(r_temp))];
+		{
+			temp = map[zip(R_change_2(r_temp))];
+			R= 1 + map[zip(r_temp)] - temp;
+			goto tag;
+		}
 		if (map[zip(R_change_3(r_temp))] < 0 && time_stamp[zip(R_change_3(r_temp))] == time)
-			return 1 + map[zip(r_temp)] - map[zip(R_change_3(r_temp))];
-		if (map[zip(R_change_1(r_temp))] <= 0) {
+		{
+			temp = map[zip(R_change_3(r_temp))];
+			R= 1 + map[zip(r_temp)] - temp;
+			goto tag;
+		}
+	tag:
+		if (map[zip(R_change_1(r_temp))] <= 0&& R_change_1(r_temp)!=RESULT) {
 			map[zip(R_change_1(r_temp))] = map[zip(r_temp)] + 1;
 			result.push(R_change_1(r_temp));
 		}
-		if (map[zip(R_change_2(r_temp))] <= 0) {
+		if (map[zip(R_change_2(r_temp))] <= 0 && R_change_2(r_temp) != RESULT) {
 			map[zip(R_change_2(r_temp))] = map[zip(r_temp)] + 1;
 			result.push(R_change_2(r_temp));
 		}
-		if (map[zip(R_change_3(r_temp))] <= 0) {
+		if (map[zip(R_change_3(r_temp))] <= 0 && R_change_3(r_temp) != RESULT) {
 			map[zip(R_change_3(r_temp))] = map[zip(r_temp)] + 1;
 			result.push(R_change_3(r_temp));
 		}
+		if (R >= 0) return R;
 		//a try from start
 		s_temp = start.pop();
+
 		if (map[zip(change_1(s_temp))] > 0) return 1 + map[zip(change_1(s_temp))] - map[zip(s_temp)];
 		if (map[zip(change_2(s_temp))] > 0) return 1 + map[zip(change_2(s_temp))] - map[zip(s_temp)];
 		if (map[zip(change_3(s_temp))] > 0) return 1 + map[zip(change_3(s_temp))] - map[zip(s_temp)];
-		if (time_stamp[zip(change_1(s_temp))] == time&&map[zip(change_1(s_temp))] < 0);
+		
+		if (time_stamp[zip(change_1(s_temp))] == time&&map[zip(change_1(s_temp))]);
 		else {
 			time_stamp[zip(change_1(s_temp))] = time;//update time
 			start.push(change_1(s_temp));//push
 			map[zip(change_1(s_temp))] = map[zip(s_temp)] - 1;//minus 1
 		}
-		if (time_stamp[zip(change_2(s_temp))] == time&&map[zip(change_2(s_temp))] < 0);
+		if (time_stamp[zip(change_2(s_temp))] == time&&map[zip(change_2(s_temp))]);
 		else {
 			time_stamp[zip(change_2(s_temp))] = time;//update time
 			start.push(change_2(s_temp));//push
 			map[zip(change_2(s_temp))] = map[zip(s_temp)] - 1;//minus 1
 		}
-		if (time_stamp[zip(change_3(s_temp))] == time&&map[zip(change_3(s_temp))] < 0);
+		if (time_stamp[zip(change_3(s_temp))] == time&&map[zip(change_3(s_temp))]);
 		else {
 			time_stamp[zip(change_3(s_temp))] = time;//update time
 			start.push(change_3(s_temp));//push
@@ -119,23 +126,18 @@ int solve(int code) {
 }
 //zip and unzip
 inline int zip(int code) {
-	int result = 0;
-	result += ((code & 07) - 1)*_0;
-	code >>= 3;
-	result += ((code & 07) - 1)*_1;
-	code >>= 3;
-	result += ((code & 07) - 1)*_2;
-	code >>= 3;
-	result += ((code & 07) - 1)*_3;
-	code >>= 3;
-	result += ((code & 07) - 1)*_4;
-	code >>= 3;
-	result += ((code & 07) - 1)*_5;
-	code >>= 3;
-	result += ((code & 07) - 1)*_6;
-	code >>= 3;
-	result += ((code & 07) - 1)*_7;
-	code >>= 3;
+	int a[8], i, j, t, sum = 0;
+	for (i = 8;i--;) {
+		a[i] = code & 07;
+		code >>= 3;
+	}
+	for (i = 0;i < 8;++i) {
+		t = 0;
+		for (j = i + 1;j < 8;++j)
+			if(a[j]<a[i]) t++;
+		sum += t*fact[8 - i - 1];
+	}
+	return sum;
 }
 inline int unzip(int code) {
 	return code;
@@ -229,17 +231,23 @@ queue::queue(int code) {
 	this->num = 1;
 }
 int queue::pop() {
-	list* temp = this->head;
+	int temp = this->head->value;
 	this->head = this->head->next;
 	this->num--;
-	int tmp = temp->value;
-	free(temp);
-	return tmp;
+	return temp;
 }
 void queue::push(int code) {
-	this->end->next = (list*)malloc(sizeof(list));
-	this->end = this->end->next;
-	this->end->value = code;
-	this->end->next = NULL;
-	this->num++;
+	if (num) {
+		this->end->next = (list*)malloc(sizeof(list));
+		this->end = this->end->next;
+		this->end->value = code;
+		this->end->next = NULL;
+		this->num++;
+	}
+	else {
+		this->head = this->end = (list*)malloc(sizeof(list));
+		this->head->value = code;
+		this->head->next = NULL;
+		this->num = 1;
+	}
 }
