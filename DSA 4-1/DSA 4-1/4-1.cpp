@@ -26,41 +26,81 @@ inline int change_3(int);
 inline int R_change_1(int);
 inline int R_change_2(int);
 inline int R_change_3(int);
+//static variables
 int map[077777777];
-//int main() {
-//	int n;
-//	int i;
-//	int temp;
-//	int code;
-//	scanf("%d", &n);
-//	for (;n--;) {
-//		code = 0;
-//		for (i = 8;i--;) {
-//			scanf("%d", &temp);
-//			code <<= 3;
-//			code += (temp - 1);
-//		}
-//		printf("%d\n",solve(code));
-//	}
-//	return 0;
-//}
+int time_stamp[077777777];
+int time;
+queue result(RESULT);
 int main() {
-	int temp = RESULT;
-	printf("%o\n", temp = change_1(temp));
-	printf("%o\n", temp = change_2(temp));
-	printf("%o\n", temp = change_3(temp));
-	printf("%o\n", temp = R_change_3(temp));
-	printf("%o\n", temp = R_change_2(temp));
-	printf("%o\n", temp = R_change_1(temp));
+	int n;
+	int i;
+	int temp;
+	int code;
+	scanf("%d", &n);
+	for (;n--;) {
+		time++;
+		code = 0;
+		for (i = 8;i--;) {
+			scanf("%d", &temp);
+			code <<= 3;
+			code += (temp - 1);
+		}
+		printf("%d\n",solve(code));
+	}
+	return 0;
 }
 int solve(int code) {
+	int r_temp, s_temp;
 	if (code == RESULT) return 0;
-	//find the code,if not
-	//A while loop
-	//BFS the result root tree a loop
-	//BFS the begin root tree a loop
-	//check whether they have a cir.
-	//if cannot goon return -1;
+	if (map[code] > 0) return map[code];
+	if (result.empty()) return -1;
+	queue start(code);
+	map[code] = 0;
+	while ((!start.empty()) && (!result.empty())) {
+		//a try from root
+		r_temp = result.pop();
+		if (map[R_change_1(r_temp)] < 0 && time_stamp[R_change_1(r_temp)] == time)
+			return 1 + map[r_temp] - map[R_change_1(r_temp)];
+		if (map[R_change_2(r_temp)] < 0 && time_stamp[R_change_2(r_temp)] == time)
+			return 1 + map[r_temp] - map[R_change_2(r_temp)];
+		if (map[R_change_3(r_temp)] < 0 && time_stamp[R_change_3(r_temp)] == time)
+			return 1 + map[r_temp] - map[R_change_3(r_temp)];
+		if (map[R_change_1(r_temp)] <= 0) {
+			map[R_change_1(r_temp)] = map[r_temp] + 1;
+			result.push(R_change_1(r_temp));
+		}
+		if (map[R_change_2(r_temp)] <= 0) {
+			map[R_change_2(r_temp)] = map[r_temp] + 1;
+			result.push(R_change_2(r_temp));
+		}
+		if (map[R_change_3(r_temp)] <= 0) {
+			map[R_change_3(r_temp)] = map[r_temp] + 1;
+			result.push(R_change_3(r_temp));
+		}
+		//a try from start
+		s_temp = start.pop();
+		if (map[change_1(s_temp)] > 0) return 1 + map[change_1(s_temp)] - map[s_temp];
+		if (map[change_2(s_temp)] > 0) return 1 + map[change_2(s_temp)] - map[s_temp];
+		if (map[change_3(s_temp)] > 0) return 1 + map[change_3(s_temp)] - map[s_temp];
+		if (time_stamp[change_1(s_temp)] == time&&map[change_1(s_temp)] < 0);
+		else {
+			time_stamp[change_1(s_temp)] = time;//update time
+			start.push(change_1(s_temp));//push
+			map[change_1(s_temp)] = map[s_temp] - 1;//minus 1
+		}
+		if (time_stamp[change_2(s_temp)] == time&&map[change_2(s_temp)] < 0);
+		else {
+			time_stamp[change_2(s_temp)] = time;//update time
+			start.push(change_2(s_temp));//push
+			map[change_2(s_temp)] = map[s_temp] - 1;//minus 1
+		}
+		if (time_stamp[change_3(s_temp)] == time&&map[change_3(s_temp)] < 0);
+		else {
+			time_stamp[change_3(s_temp)] = time;//update time
+			start.push(change_3(s_temp));//push
+			map[change_3(s_temp)] = map[s_temp] - 1;//minus 1
+		}
+	}
 	return -1;
 }
 //rules: to
