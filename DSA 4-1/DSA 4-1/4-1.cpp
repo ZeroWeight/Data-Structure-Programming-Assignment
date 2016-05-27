@@ -30,8 +30,19 @@ inline int R_change_1(int);
 inline int R_change_2(int);
 inline int R_change_3(int);
 //static variables
-int map[077777777];
-int time_stamp[077777777];
+enum fact {
+	_0 = 1,
+	_1 = 1,
+	_2 = 2,
+	_3 = 6,
+	_4 = 24,
+	_5 = 120,
+	_6 = 720,
+	_7 = 5040,
+	_8 = 40320,
+};
+int map[_8];
+int time_stamp[_8];
 int time;
 queue result(RESULT);
 int main() {
@@ -108,7 +119,23 @@ int solve(int code) {
 }
 //zip and unzip
 inline int zip(int code) {
-	return code;
+	int result = 0;
+	result += ((code & 07) - 1)*_0;
+	code >>= 3;
+	result += ((code & 07) - 1)*_1;
+	code >>= 3;
+	result += ((code & 07) - 1)*_2;
+	code >>= 3;
+	result += ((code & 07) - 1)*_3;
+	code >>= 3;
+	result += ((code & 07) - 1)*_4;
+	code >>= 3;
+	result += ((code & 07) - 1)*_5;
+	code >>= 3;
+	result += ((code & 07) - 1)*_6;
+	code >>= 3;
+	result += ((code & 07) - 1)*_7;
+	code >>= 3;
 }
 inline int unzip(int code) {
 	return code;
