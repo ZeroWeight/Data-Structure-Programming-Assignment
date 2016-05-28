@@ -16,10 +16,11 @@ public:
 	queue(int);
 	void push(int);
 	int pop();
-	int empty();
+	inline int const empty();
+	inline int const value();
 };
 //BFS search
-void BFS();
+void BFS(int);
 //zip and upzip
 inline int zip(int);
 //rule for
@@ -27,9 +28,10 @@ inline int R_change_1(int);
 inline int R_change_2(int);
 inline int R_change_3(int);
 //static variables
-const int fact[] = { 1,1,2,6,24,120,720,5040,40320 };
-int map[_8];
+const short fact[] = { 1,1,2,6,24,120,720,5040,40320 };
+char map[_8];
 char read_in[1 << 20];
+queue root(RESULT);
 int main() {
 	setvbuf(stdin, read_in, _IOFBF, 1 << 20);
 	int n;
@@ -37,7 +39,6 @@ int main() {
 	int i;
 	int temp;
 	int code;
-	BFS();
 	for (;n--;) {
 		code = 0;
 		for (i = 8;i--;) {
@@ -45,17 +46,21 @@ int main() {
 			code <<= 3;
 			code += (temp - 1);
 		}
-		if (code == RESULT) puts("0");
-		else if (map[zip(code)] > 0) printf("%d\n", map[zip(code)]);
+		if (code == RESULT) { puts("0");continue; }
+		if (map[zip(code)] > 0) {
+			printf("%d\n", map[zip(code)]);continue;
+		}
+		BFS(code);
+		if (map[zip(code)] > 0) printf("%d\n", map[zip(code)]);
 		else puts("-1");
 	}
 	return 0;
 }
 //BFS search
-void BFS() {
-	queue root(RESULT);
+void BFS(int aim) {
 	int code;
 	while (!root.empty()) {
+		if (aim == root.value()) break;
 		code = root.pop();
 		if (!map[zip(R_change_1(code))] && R_change_1(code) != RESULT) {
 			map[zip(R_change_1(code))] = map[zip(code)] + 1;
@@ -126,7 +131,7 @@ inline int R_change_3(int code) {
 	return temp;
 }
 //the function of a queue
-int queue::empty() {
+int const queue::empty() {
 	return num == 0;
 }
 queue::queue(int code) {
@@ -155,4 +160,7 @@ void queue::push(int code) {
 		this->head->next = NULL;
 		this->num = 1;
 	}
+}
+int const queue::value() {
+	return this->head->value;
 }
