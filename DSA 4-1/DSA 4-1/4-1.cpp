@@ -46,7 +46,7 @@ int main() {
 			code += (temp - 1);
 		}
 		if (code == RESULT) puts("0");
-		else if (map[zip(code)] > 0) printf("%d", map[zip(code)]);
+		else if (map[zip(code)] > 0) printf("%d\n", map[zip(code)]);
 		else puts("-1");
 	}
 	return 0;
@@ -56,7 +56,7 @@ void BFS() {
 	queue root(RESULT);
 	int code;
 	while (!root.empty()) {
-		code=root.pop();
+		int code=root.pop();
 		if (!map[zip(R_change_1(code))] && R_change_1(code) != RESULT) {
 			map[zip(R_change_1(code))] = map[zip(code)] + 1;
 			root.push(R_change_1(code));
