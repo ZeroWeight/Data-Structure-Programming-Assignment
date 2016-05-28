@@ -27,7 +27,7 @@ void invKT(int ans[], int n, int k)
 int main()
 {
 	int a[10];
-	for (int i = 1;i < 40321;i++) {
+	for (int i = 1;i < 1000;i++) {
 		invKT(a, 8, i);
 		for (int i = 0; i < 8; ++i)
 			printf("%d ", a[i]);///1 4 3 5 2  

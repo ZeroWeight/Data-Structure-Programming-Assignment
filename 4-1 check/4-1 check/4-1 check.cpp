@@ -1,104 +1,158 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <queue>
-using namespace std;
-const int MAXN = 40321; //由于此题数字1~8，康托展开的所有情况为8!，共40320种
-const int fac[8] = { 1, 1, 2, 6, 24, 120, 720, 5040 }; //康托展开中用到的0~7的阶乘
-string ans[MAXN]; //存储各状态的变化步骤，预处理完成
-struct node {
-	int a[8];
-	int n;
-} u, v;
-void A(node &t) //A操作
-{
-	swap(t.a[0], t.a[7]);
-	swap(t.a[1], t.a[6]);
-	swap(t.a[2], t.a[5]);
-	swap(t.a[3], t.a[4]);
-}
-void B(node &t) //B操作
-{
-	swap(t.a[3], t.a[2]);
-	swap(t.a[2], t.a[1]);
-	swap(t.a[1], t.a[0]);
-	swap(t.a[4], t.a[5]);
-	swap(t.a[5], t.a[6]);
-	swap(t.a[6], t.a[7]);
-}
-void C(node &t) //C操作
-{
-	swap(t.a[1], t.a[6]);
-	swap(t.a[6], t.a[5]);
-	swap(t.a[5], t.a[2]);
-}
-int contor(node &t) //康托展开
-{
-	int tmp, num = 0;
-	for (int i = 0; i < 8; i++) {
-		tmp = 0;
-		for (int j = i + 1; j < 8; j++) {
-			if (t.a[j] < t.a[i]) {
-				tmp++;
-			}
-		}
-		num += tmp * fac[7 - i];
-	}
-	return num;
-}
-void Init(void) {
-	void(*ptr[3])(node&); //定义函数指针
-	ptr[0] = A;
-	ptr[1] = B;
-	ptr[2] = C; //指向对应函数方便处理
-
-	int mark[MAXN] = { 0 }; //设置标记
-	mark[0] = 1;
-
-	for (int i = 0; i < 8; i++) //由初始状态12345678开始
-	{
-		u.a[i] = i + 1;
-	}
-	u.n = contor(u);
-
-	queue<node> que;
-	que.push(u);
-	while (!que.empty()) {
-		u = que.front();
-		que.pop();
-		for (int i = 0; i < 3; i++) //三种变换
-		{
-			v = u;
-			(*ptr[i])(v);
-			v.n = contor(v); //对副本执行操作并康托展开
-			if (mark[v.n] == 0) //重复
-			{
-				char ch = 'A' + i;
-				ans[v.n] = ans[u.n] + ch; //记录步骤
-
-				mark[v.n] = 1; //标记
-				que.push(v);
-			}
-		}
-	}
-}
+#include<stdio.h>
+#include<stdlib.h>
+#define RESULT 001234567
+#define _8 40320
+typedef struct _list {
+	int value;
+	struct _list* next;
+}list;
+class queue {
+private:
+	list* head;
+	list* end;
+	short num;
+public:
+	queue(int);
+	void push(int);
+	int pop();
+	int empty();
+};
+//BFS search
+void BFS();
+//zip and upzip
+inline int zip(int);
+//rule for
+inline int R_change_1(int);
+inline int R_change_2(int);
+inline int R_change_3(int);
+//static variables
+const int fact[] = { 1,1,2,6,24,120,720,5040,40320 };
+int map[_8];
+char read_in[1 << 20];
 int main() {
-	Init();
-	char a[10] = { 0 }, b[10] = "12345678";
-	while (gets_s(a)) {
-		int n[10];
-		for (int i = 0; i < 8; i++) //把初态置换成12345678
-		{
-			n[a[i] - '0'] = i + 1;
+	setvbuf(stdin, read_in, _IOFBF, 1 << 20);
+	int n;
+	scanf("%d", &n);
+	int i;
+	int temp;
+	int code;
+	BFS();
+	for (;n--;) {
+		code = 0;
+		for (i = 8;i--;) {
+			scanf("%d", &temp);
+			code <<= 3;
+			code += (temp - 1);
 		}
-
-		for (int i = 0; i < 8; i++) //把目标状态相对于初态置换
-		{
-			u.a[i] = n[b[i] - '0'];
-		}
-
-		cout << ans[contor(u)].length() << endl; //输出由12345678到目标态的步骤
+		if (code == RESULT) puts("0");
+		else if (map[zip(code)] > 0) printf("%d %d\n",n,map[zip(code)]);
+		else puts("-1");
 	}
 	return 0;
+}
+//BFS search
+void BFS() {
+	queue root(RESULT);
+	int code;
+	while (!root.empty()) {
+		code = root.pop();
+		if (!map[zip(R_change_1(code))] && R_change_1(code) != RESULT) {
+			map[zip(R_change_1(code))] = map[zip(code)] + 1;
+			root.push(R_change_1(code));
+		}
+		if (!map[zip(R_change_2(code))] && R_change_2(code) != RESULT) {
+			map[zip(R_change_2(code))] = map[zip(code)] + 1;
+			root.push(R_change_2(code));
+		}
+		if (!map[zip(R_change_3(code))] && R_change_3(code) != RESULT) {
+			map[zip(R_change_3(code))] = map[zip(code)] + 1;
+			root.push(R_change_3(code));
+		}
+	}
+}
+//zip and unzip
+inline int zip(int code) {
+	int a[8], i, j, t, sum = 0;
+	for (i = 8;i--;) {
+		a[i] = code & 07;
+		code >>= 3;
+	}
+	for (i = 0;i < 8;++i) {
+		t = 0;
+		for (j = i + 1;j < 8;++j)
+			if (a[j]<a[i]) t++;
+		sum += t*fact[8 - i - 1];
+	}
+	return sum;
+}
+//rules: from
+inline int R_change_1(int code) {
+	int temp = 0;
+	for (int i = 8;i--;) {
+		temp <<= 3;
+		temp += (code & 07);
+		code >>= 3;
+	}
+	return temp;
+}
+inline int R_change_2(int code) {
+	int lower = code & 07777;//the lower state;
+	int higher = code >> (3 * 4);
+	int higher_1 = (higher & 07000) >> (3 * 3);
+	int higher_234 = higher - (higher_1 << (3 * 3));
+	higher = (higher_234 << 3) + higher_1;
+	int lower_1 = lower & 07;
+	int lower_234 = lower >> 3;
+	lower = (lower_1 << (3 * 3)) + lower_234;
+	return ((higher << (3 * 4)) + lower);
+}
+inline int R_change_3(int code) {
+	int a[8];
+	for (int i = 8;i--;) {
+		a[i] = code & 07;
+		code >>= 3;
+	}
+	int temp = a[1];
+	a[1] = a[2];
+	a[2] = a[5];
+	a[5] = a[6];
+	a[6] = temp;
+	temp = 0;
+	for (int i = 0;i < 8;++i) {
+		temp <<= 3;
+		temp += a[i];
+	}
+	return temp;
+}
+//the function of a queue
+int queue::empty() {
+	return num == 0;
+}
+queue::queue(int code) {
+	this->head = this->end = (list*)malloc(sizeof(list));
+	this->head->value = code;
+	this->head->next = NULL;
+	this->num = 1;
+}
+int queue::pop() {
+	int temp = this->head->value;
+	this->head = this->head->next;
+	this->num--;
+	return temp;
+}
+void queue::push(int code) {
+	if (num) {
+		this->end->next = (list*)malloc(sizeof(list));
+		this->end = this->end->next;
+		this->end->value = code;
+		this->end->next = NULL;
+		this->num++;
+	}
+	else {
+		this->head = this->end = (list*)malloc(sizeof(list));
+		this->head->value = code;
+		this->head->next = NULL;
+		this->num = 1;
+	}
 }
