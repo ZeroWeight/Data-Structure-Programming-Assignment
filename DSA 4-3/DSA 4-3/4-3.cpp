@@ -56,28 +56,28 @@ T PQ_ComplHeap::delmax() {
 	return maxelem;
 }
 Rank PQ_ComplHeap::percolateDown(Rank n, Rank i) {
-	Rank j = i;
-	T max;
+	/*Rank j;
+	while (i != (j = ProperParent(data, n, i))) {
+		swap(data[i], data[j]);
+		i = j;
+	}
+	return i;*/
+	Rank j;
 	T temp = data[i];
-	if (RChildVaild(n, i)) {
-		if (data[j] < data[LChild(i)]) j = LChild(i);
-		if (data[j] < data[RChild(i)]) j = RChild(i);
-	}
-	else if (LChildVaild(n, i)) {
-		if (data[j] < data[LChild(i)]) j = LChild(i);
-	}
-	while (i != j) {
+	if (RChildVaild(n, i))
+		j = Bigger(data, LChild(i), RChild(i));
+	else if (LChildVaild(n, i))
+		j = LChild(i);
+	while (temp < data[j]) {
 		data[i] = data[j];
 		i = j;
-		if (RChildVaild(n, i)) {
-			max = (data[LChild(i)]>data[RChild(i)]) ? i : j;
-			if (temp < data[max]) j = max;
-		}
-		else if (LChildVaild(n, i)) {
-			if (temp < data[LChild(i)]) j = LChild(i);
-		}
+		if (RChildVaild(n, i))
+			j = Bigger(data, LChild(i), RChild(i));
+		else if (LChildVaild(n, i))
+			j = LChild(i);
+		else break;
 	}
-	data[j] = temp;
+	data[i] = temp;
 	return i;
 }
 PQ_ComplHeap::PQ_ComplHeap(int k) {

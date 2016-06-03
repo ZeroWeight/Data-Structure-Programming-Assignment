@@ -22,7 +22,7 @@ int main() {
 	for (; k--;) printf("%d\n", extract(data, k));
 	return 0;
 }
-void swap(int *data, int i, int j) {
+inline void swap(int *data, int i, int j) {
 	int tmp;
 	tmp = data[i];
 	data[i] = data[j];
@@ -30,6 +30,7 @@ void swap(int *data, int i, int j) {
 }
 void adjust(int *data, int i, int size) {
 	int tmp = i;
+	int temp = data[i];
 	if (i <= size >> 1) {
 		if (l(i) < size && data[l(i)] > data[tmp]) tmp = l(i);
 		if (r(i) < size && data[r(i)] > data[tmp]) tmp = r(i);
